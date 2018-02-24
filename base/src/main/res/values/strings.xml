@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Tracker</string>
+    <string name="title_activity_main">Tracker</string>
+    <string name="title_activity_login">Log in</string>
+</resources>
