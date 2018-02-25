@@ -1,7 +1,10 @@
 package metaplatform.ele638.tracker.feature;
+import android.support.annotation.NonNull;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -9,7 +12,7 @@ import java.util.Date;
  * ele638@gmail.com
  */
 
-public class Task {
+public class Task implements Comparable<Task>{
     Long id;
     String name;
     String status;
@@ -18,32 +21,31 @@ public class Task {
     Integer number;
     String background_color;
 
-    public Task(Long id, Integer number, String name, String status, String category, String data_plan){
-        this.id = id;
-        this.number = number;
-        this.name = name;
-        this.status = status;
-        this.category = category;
-        this.data_plan = data_plan;
-    }
 
     public Task(JSONObject jsonObject){
         try {
             JSONObject data = jsonObject.getJSONObject("data");
             JSONObject system = jsonObject.getJSONObject("system");
             this.id = system.getLong("id");
-            this.number = data.getJSONObject("NUMBER").getInt("value");
+            this.background_color = system.isNull("color") ? null : system.getString("color");
+            this.number = data.isNull("NUMBER") ? null : data.getJSONObject("NUMBER").getInt("value");
             this.name = data.getJSONObject("NAME").getString("value");
             this.status = data.getJSONObject("A$STATUSID").getString("displayValue");
             this.category = data.getJSONObject("CATID").getString("displayValue");
-            this.data_plan = data.getJSONObject("DATE_PLAN").getString("value");
-            this.background_color = system.getString("color");
+            this.data_plan =
+            this.data_plan = data.isNull("DATE_PLAN") ? null : data.getJSONObject("DATE_PLAN").getString("value");
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
+
     public Long getId(){
         return this.id;
+    }
+
+    @Override
+    public int compareTo(@NonNull Task o) {
+        return o.id.compareTo(id);
     }
 }

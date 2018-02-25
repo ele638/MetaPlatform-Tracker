@@ -4,8 +4,13 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +42,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -56,11 +62,12 @@ public class TaskList extends Fragment implements AdapterView.OnItemClickListene
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable final ViewGroup container, Bundle savedInstanceState) {
         View out_view = inflater.inflate(R.layout.tasklist, null);
-        final ListView tasksView = out_view.findViewById(R.id.tasklist);
+        final RecyclerView taskRecyclerView = out_view.findViewById(R.id.taskRecyclerView);
+        final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+        taskRecyclerView.setLayoutManager(layoutManager);
+
         tasks = new ArrayList<>();
         final TaskAdapter taskAdapter = new TaskAdapter();
-        tasksView.setAdapter(taskAdapter);
-        tasksView.setOnItemClickListener(this);
 
         volleySingleton = VolleySingleton.getInstance(getContext());
                 // ArrayAdapter.createFromResource(this,
@@ -103,8 +110,13 @@ public class TaskList extends Fragment implements AdapterView.OnItemClickListene
                                      Task task = new Task(body.getJSONObject(i));
                                      tasks.add(task);
                                  }
-
+                                 Collections.sort(tasks);
+                                 taskRecyclerView.setAdapter(taskAdapter);
                                  taskAdapter.notifyDataSetChanged();
+                             }
+                             else{
+                                 Intent intent = new Intent(getContext(), LoginActivity.class);
+                                 startActivity(intent);
                              }
                          }catch (Exception e){
                              e.printStackTrace();
@@ -115,6 +127,8 @@ public class TaskList extends Fragment implements AdapterView.OnItemClickListene
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d("Response", error.toString());
+                        Intent intent = new Intent(getContext(), LoginActivity.class);
+                        startActivity(intent);
                     }
                 });
         return out_view;
@@ -123,6 +137,67 @@ public class TaskList extends Fragment implements AdapterView.OnItemClickListene
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         Toast.makeText(getContext(), tasks.get(i).id.toString(), Toast.LENGTH_SHORT).show();
+    }
+
+
+    class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>{
+
+        @Override
+        public TaskAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(getContext()).inflate(R.layout.task_card, parent, false);
+            ViewHolder vh = new ViewHolder(view);
+            return vh;
+        }
+
+        @Override
+        public int getItemCount() {
+            return tasks.size();
+        }
+
+        @Override
+        public void onBindViewHolder(TaskAdapter.ViewHolder holder, final int position) {
+            Task element = tasks.get(position);
+            if(element != null) {
+                holder.taskNumber.setText(element.number.toString());
+                holder.taskTitle.setText(element.name);
+                holder.taskStatus.setText(element.status);
+                holder.taskCategory.setText(element.category);
+                holder.taskDataPlan.setText(element.data_plan);
+                if (tasks.get(position).background_color != null) {
+                    int color = Color.TRANSPARENT;
+                    Drawable background = holder.itemView.findViewById(R.id.taskCardLayout).getBackground();
+                    if (background instanceof ColorDrawable)
+                        color = ((ColorDrawable) background).getColor();
+                    GradientDrawable gd = new GradientDrawable(
+                            GradientDrawable.Orientation.LEFT_RIGHT,
+                            new int[]{Color.parseColor(element.background_color), color});
+                    gd.setCornerRadius(0f);
+
+                    holder.itemView.findViewById(R.id.taskCardLayout).setBackground(gd);
+                }
+            }
+            holder.itemView.findViewById(R.id.taskCardView).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getContext(), tasks.get(position).id.toString(), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+
+            TextView taskNumber, taskTitle, taskStatus, taskCategory, taskDataPlan;
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+                taskNumber = itemView.findViewById(R.id.taskNumber);
+                taskTitle = itemView.findViewById(R.id.taskTitle);
+                taskStatus = itemView.findViewById(R.id.taskStatus);
+                taskCategory = itemView.findViewById(R.id.taskCategory);
+                taskDataPlan = itemView.findViewById(R.id.taskDatePlan);
+            }
+        }
+
     }
 
     class UsersAdapter extends BaseAdapter {
@@ -150,38 +225,6 @@ public class TaskList extends Fragment implements AdapterView.OnItemClickListene
             //View out =  View.inflate(getContext(), android.R.layout.simple_spinner_item, null);
             //((TextView) out.findViewById(android.R.id.text1)).setText(users.values().toArray()[i].toString());
             return out;
-        }
-    }
-
-    class TaskAdapter extends BaseAdapter{
-
-        @Override
-        public int getCount() {
-            return tasks.size();
-        }
-
-        @Override
-        public Object getItem(int i) {
-            return tasks.get(i);
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return tasks.get(i).getId();
-        }
-
-        @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
-            Task element = tasks.get(i);
-            View task_card = LayoutInflater.from(getContext()).inflate(R.layout.task_card, null);
-            ((TextView) task_card.findViewById(R.id.taskNumber)).setText(element.number.toString());;
-            ((TextView) task_card.findViewById(R.id.taskTitle)).setText(element.name);
-            ((TextView) task_card.findViewById(R.id.taskStatus)).setText(element.status);
-            ((TextView) task_card.findViewById(R.id.taskCategory)).setText(element.category);
-            ((TextView) task_card.findViewById(R.id.taskDatePlan)).setText(element.data_plan);
-
-            if (element.background_color != null) task_card.setBackgroundColor(Color.parseColor(element.background_color));
-            return task_card;
         }
     }
 }

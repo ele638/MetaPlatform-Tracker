@@ -1,4 +1,5 @@
 <resources>
+    <string name="app_name">Tracker</string>
     <string name="title_activity_login">Log in</string>
     <string name="title_activity_main">Tracker</string>
     <string name="title_home">Home</string>
@@ -6,4 +7,9 @@
     <string name="title_notifications">Notifications</string>
     <string name="timeList">Затраченное время</string>
     <string name="taskList">Задачи</string>
+    <string name="taskNumberTest">6326</string>
+    <string name="taskTitleTest">Уведомление пациента и врача при записи в ТМС</string>
+    <string name="taskStatusTest">В работе</string>
+    <string name="taskCategoryTest">_Прикладуха</string>
+    <string name="taskDateTest">2018-02-22</string>
 </resources>
