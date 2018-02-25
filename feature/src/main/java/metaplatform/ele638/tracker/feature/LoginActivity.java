@@ -28,6 +28,7 @@ import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
 
+    final String LOG_TAG = "LOGIN ";
     SharedPreferences preferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
         Response.Listener<String> listener = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.d("Response", response);
+                Log.d(LOG_TAG+"Success: ", response);
                 JsonObject object = (new JsonParser()).parse(response).getAsJsonObject();
                 if(object.get("code").getAsInt() == 200){
                     SharedPreferences.Editor editor = preferences.edit();
@@ -101,6 +102,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 else {
                     Toast.makeText(ctx, object.get("message").getAsString(), Toast.LENGTH_SHORT).show();
+                    Log.d(LOG_TAG+"ERR. Response: ", response);
                     relaunch();
                 }
             }
@@ -110,6 +112,7 @@ public class LoginActivity extends AppCompatActivity {
         Response.ErrorListener errorListener = new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Log.d(LOG_TAG+"Error_listner: ", error.toString());
                 Toast.makeText(ctx, "Ошибка подключения", Toast.LENGTH_SHORT).show();
                 relaunch();
             }

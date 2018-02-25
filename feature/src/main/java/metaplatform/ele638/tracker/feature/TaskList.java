@@ -1,8 +1,9 @@
 package metaplatform.ele638.tracker.feature;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.Fragment;
 import android.content.Intent;
-import android.database.DataSetObserver;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -15,36 +16,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +42,7 @@ public class TaskList extends Fragment implements AdapterView.OnItemClickListene
     VolleySingleton volleySingleton;
     Map<Long, String> users;
     List<Task> tasks;
-
+    final String LOG_TAG = "TASKLIST ";
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable final ViewGroup container, Bundle savedInstanceState) {
@@ -70,8 +55,8 @@ public class TaskList extends Fragment implements AdapterView.OnItemClickListene
         final TaskAdapter taskAdapter = new TaskAdapter();
 
         volleySingleton = VolleySingleton.getInstance(getContext());
-                // ArrayAdapter.createFromResource(this,
-                //users.values().toString(), android.R.layout.simple_spinner_item);
+        // ArrayAdapter.createFromResource(this,
+        //users.values().toString(), android.R.layout.simple_spinner_item);
         /* volleySingleton.getUsers(
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -100,33 +85,28 @@ public class TaskList extends Fragment implements AdapterView.OnItemClickListene
         */
         volleySingleton.getTasks(
                 new Response.Listener<JSONObject>() {
-                     @Override
-                     public void onResponse(JSONObject response) {
-                         try {
-                             Log.d("getTasks", response.toString());
-                             if (response.getInt("code") == 200) {
-                                 JSONArray body = response.getJSONArray("body");
-                                 for (int i = 0; i < body.length(); i++){
-                                     Task task = new Task(body.getJSONObject(i));
-                                     tasks.add(task);
-                                 }
-                                 Collections.sort(tasks);
-                                 taskRecyclerView.setAdapter(taskAdapter);
-                                 taskAdapter.notifyDataSetChanged();
-                             }
-                             else{
-                                 Intent intent = new Intent(getContext(), LoginActivity.class);
-                                 startActivity(intent);
-                             }
-                         }catch (Exception e){
-                             e.printStackTrace();
-                         }
-                     }
-                 },
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            if (response.getInt("code") == 200) {
+                                tasks = Task.arrayFromJson(response.getJSONArray("body"));
+                                taskRecyclerView.setAdapter(taskAdapter);
+                                taskAdapter.notifyDataSetChanged();
+                                Log.d(LOG_TAG + "getTasks: ",response.toString());
+                            } else {
+                                Intent intent = new Intent(getContext(), LoginActivity.class);
+                                startActivity(intent);
+                                Log.d(LOG_TAG + "getTasks: ",response.toString());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.d("Response", error.toString());
+                        Log.d(LOG_TAG + "getTasks: ", error.toString());
                         Intent intent = new Intent(getContext(), LoginActivity.class);
                         startActivity(intent);
                     }
@@ -136,11 +116,11 @@ public class TaskList extends Fragment implements AdapterView.OnItemClickListene
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Toast.makeText(getContext(), tasks.get(i).id.toString(), Toast.LENGTH_SHORT).show();
+
     }
 
 
-    class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder>{
+    class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> {
 
         @Override
         public TaskAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -157,7 +137,7 @@ public class TaskList extends Fragment implements AdapterView.OnItemClickListene
         @Override
         public void onBindViewHolder(TaskAdapter.ViewHolder holder, final int position) {
             Task element = tasks.get(position);
-            if(element != null) {
+            if (element != null) {
                 holder.taskNumber.setText(element.number.toString());
                 holder.taskTitle.setText(element.name);
                 holder.taskStatus.setText(element.status);
@@ -179,7 +159,9 @@ public class TaskList extends Fragment implements AdapterView.OnItemClickListene
             holder.itemView.findViewById(R.id.taskCardView).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(getContext(), tasks.get(position).id.toString(), Toast.LENGTH_LONG).show();
+                    TaskDetail detail = new TaskDetail();
+                    detail.setTask(tasks.get(position));
+                    detail.show(getFragmentManager(), "detail1");
                 }
             });
         }

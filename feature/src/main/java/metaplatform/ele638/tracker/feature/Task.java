@@ -1,11 +1,15 @@
 package metaplatform.ele638.tracker.feature;
 import android.support.annotation.NonNull;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by ele638 on 25/02/2018.
@@ -47,5 +51,20 @@ public class Task implements Comparable<Task>{
     @Override
     public int compareTo(@NonNull Task o) {
         return o.id.compareTo(id);
+    }
+
+    public static List<Task> arrayFromJson(JSONArray array){
+        List<Task> list = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            Task task = null;
+            try {
+                task = new Task(array.getJSONObject(i));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            list.add(task);
+        }
+        Collections.sort(list);
+        return list;
     }
 }
