@@ -10,8 +10,17 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONStringer;
 
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -85,16 +94,42 @@ public class VolleySingleton {
         addToRequestQueue(postRequest);
     }
 
-    public void getTasks(Response.Listener<String> listner, Response.ErrorListener errorListener){
-        final String url = SERVER_URL + "core/rest/meta/formGrid/1778116460558";
-        StringRequest taskRequest = new StringRequest(Request.Method.GET, url, listner, errorListener) {
+    public void getUsers(Response.Listener<JSONObject> listner, Response.ErrorListener errorListener){
+        final String url = SERVER_URL + "core/rest/data/dict/317827579934";
+        JsonObjectRequest usersRequest = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(), listner, errorListener){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
                 params.put("Cookie", COOKIE);
+                //params.put("Content-Type", "application/json");
                 return params;
             }
         };
-        addToRequestQueue(taskRequest);
+        addToRequestQueue(usersRequest);
+    }
+
+    public void getTasks(Response.Listener<JSONObject> listner, Response.ErrorListener errorListener){
+        final String url = SERVER_URL + "core/rest/data/grid/2499670966295";
+        try {
+            JSONObject params = new JSONObject("{\"nodes\":[8207682502687,11154030067743,9251359555615],\"params\":{\n" +
+                    "\"@userid\" : \"38654967873\",\n" +
+                    "\"@status\" : [206158430286,210453397582,214748364878,236223201358,300647710798]\n" +
+                    "}}");
+            JsonObjectRequest taskRequest = new JsonObjectRequest(Request.Method.POST, url, params, listner, errorListener) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String>  params = new HashMap<String, String>();
+                    params.put("Cookie", COOKIE);
+                    params.put("Content-Type", "application/json");
+                    return params;
+                }
+
+            };
+            addToRequestQueue(taskRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
     }
 }

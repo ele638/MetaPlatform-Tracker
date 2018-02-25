@@ -90,10 +90,13 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putString("LOGIN", login);
                     editor.putString("PASSWORD", password);
+                    editor.putString("USERNAME", object.get("body").getAsJsonObject().get("name").getAsString());
+                    editor.putLong("USERID", object.get("body").getAsJsonObject().get("userId").getAsLong());
 
                     //editor.putString("JSESSIONID", );
                     editor.apply();
                     Intent intent = new Intent(ctx, MainActivity.class);
+                    intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
                     startActivity(intent);
                 }
                 else {

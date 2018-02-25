@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         taskList = new TaskList();
         timeList = new TimeList();
         fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.navigation_task, taskList);
+        fragmentTransaction.replace(R.id.mainFrame, taskList);
         fragmentTransaction.commit();
 
         //mTextMessage = (TextView) findViewById(R.id.message);
