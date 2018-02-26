@@ -1,4 +1,5 @@
 package metaplatform.ele638.tracker.feature;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 
 import org.json.JSONArray;
@@ -31,13 +32,12 @@ public class Task implements Comparable<Task>{
             JSONObject data = jsonObject.getJSONObject("data");
             JSONObject system = jsonObject.getJSONObject("system");
             this.id = system.getLong("id");
-            this.background_color = system.isNull("color") ? null : system.getString("color");
+            this.background_color = system.isNull("color") ? "" : system.getString("color");
             this.number = data.isNull("NUMBER") ? null : data.getJSONObject("NUMBER").getInt("value");
             this.name = data.getJSONObject("NAME").getString("value");
             this.status = data.getJSONObject("A$STATUSID").getString("displayValue");
             this.category = data.getJSONObject("CATID").getString("displayValue");
-            this.data_plan =
-            this.data_plan = data.isNull("DATE_PLAN") ? null : data.getJSONObject("DATE_PLAN").getString("value");
+            this.data_plan = data.isNull("DATE_PLAN") ? "" : data.getJSONObject("DATE_PLAN").getString("value");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -66,5 +66,10 @@ public class Task implements Comparable<Task>{
         }
         Collections.sort(list);
         return list;
+    }
+
+    public int getColor(){
+        //TODO добавить спраочник цветов статусов
+        return (this.background_color.isEmpty() ? 0 : Color.parseColor(this.background_color));
     }
 }

@@ -12,4 +12,9 @@
     <string name="taskStatusTest">В работе</string>
     <string name="taskCategoryTest">_Прикладуха</string>
     <string name="taskDateTest">2018-02-22</string>
+    <string name="toggle_in_work">В работе</string>
+    <string name="toggle_new">Новые</string>
+    <string name="toggle_pause">Пауза</string>
+    <string name="toggles_tasks">Фильтры:</string>
+    <string name="toggle_reset">Сброс</string>
 </resources>

@@ -112,7 +112,7 @@ public class VolleySingleton {
         final String url = SERVER_URL + "core/rest/data/grid/2499670966295";
         try {
             JSONObject params = new JSONObject("{\"nodes\":[8207682502687,11154030067743,9251359555615],\"params\":{\n" +
-                    "\"@userid\" : \"38654967873\",\n" +
+                    "\"@userid\" : \"" + preferences.getString("USERID", "") + "\",\n" +
                     "\"@status\" : [206158430286,210453397582,214748364878,236223201358,300647710798]\n" +
                     "}}");
             JsonObjectRequest taskRequest = new JsonObjectRequest(Request.Method.POST, url, params, listner, errorListener) {

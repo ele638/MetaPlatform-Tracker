@@ -56,18 +56,18 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        ////////TESTING
+        // Если в памяти лежат логин и пароль - попробовать их сразу вставить и залогиниться
+        // в случае ошибки, управление уйдет в relaunch() и будет ручной ввод
         EditText loginField = findViewById(R.id.loginEditText);
         loginField.setText(preferences.getString("LOGIN", ""));
         passwordField.setText(preferences.getString("PASSWORD", ""));
         if (!loginField.getText().toString().isEmpty() && !passwordField.getText().toString().isEmpty()) {
             login_button(findViewById(R.id.loginButton));
         }
-
-        ////////TESTING
     }
 
     public void login_button(View view) {
+        // Обработка вьюх, которые недоступны из слушателя ответа
         EditText loginField = findViewById(R.id.loginEditText);
         EditText passwordField = findViewById(R.id.passwordEditText);
         ProgressBar bar = findViewById(R.id.progressBar);
@@ -92,12 +92,10 @@ public class LoginActivity extends AppCompatActivity {
                     editor.putString("LOGIN", login);
                     editor.putString("PASSWORD", password);
                     editor.putString("USERNAME", object.get("body").getAsJsonObject().get("name").getAsString());
-                    editor.putLong("USERID", object.get("body").getAsJsonObject().get("userId").getAsLong());
-
-                    //editor.putString("JSESSIONID", );
+                    editor.putString("USERID", object.get("body").getAsJsonObject().get("userId").getAsString());
                     editor.apply();
+
                     Intent intent = new Intent(ctx, MainActivity.class);
-                    intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
                     startActivity(intent);
                 }
                 else {
@@ -117,7 +115,6 @@ public class LoginActivity extends AppCompatActivity {
                 relaunch();
             }
         };
-
         volleySingleton.login(login, password, listener, errorListener);
     }
 

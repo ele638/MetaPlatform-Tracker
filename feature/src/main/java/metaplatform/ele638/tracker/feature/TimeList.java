@@ -16,6 +16,7 @@ public class TimeList extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+        //TODO заняться временем задач
         return super.onCreateView(inflater, container, savedInstanceState);
     }
 }
