@@ -212,7 +212,31 @@ public class TaskList extends Fragment {
             holder.itemView.findViewById(R.id.taskCardView).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(getContext(), element.name, Toast.LENGTH_SHORT).show();
+                    volleySingleton.getTaskDetail(element.id, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            try {
+                                Log.d(LOG_TAG + "getSelTask: ",response.toString());
+                                if (response.getString("code").equals("200")){
+                                    Intent intent = new Intent(getContext(), TaskActivity.class);
+                                    intent.putExtra("response", response.getJSONObject("body").getJSONObject("data").toString());
+                                    intent.putExtra("id", response.getJSONObject("body").getJSONObject("system").getLong("id"));
+                                    startActivity(intent);
+                                }else{
+                                    Toast.makeText(getContext(), "Error loading, code "+response.getString("code"), Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+
+                        }
+                    });
+
+                    //Toast.makeText(getContext(), element.name, Toast.LENGTH_SHORT).show();
                     //TODO Добавить открытие карточки задачи с деталями https://www.youtube.com/watch?v=nA2Axt5LjKQ
                 }
             });

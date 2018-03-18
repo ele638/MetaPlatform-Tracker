@@ -129,7 +129,50 @@ public class VolleySingleton {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
 
+    public void getTaskDetail(Long id, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener){
+        final String url = SERVER_URL + "core/rest/data/card/" + id;
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, listener, errorListener){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("Cookie", COOKIE);
+                params.put("Content-Type", "application/json");
+                return params;
+            }
 
+        };
+        addToRequestQueue(request);
+    }
+
+    public void getStatuses(Long id, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener){
+        final String url = SERVER_URL + "core/rest/meta/status-menu/" + id;
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, listener, errorListener){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("Cookie", COOKIE);
+                params.put("Content-Type", "application/json");
+                return params;
+            }
+
+        };
+        addToRequestQueue(request);
+    }
+
+    public void setStatus(Long bfid, Long objid, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener){
+        final String url = SERVER_URL + "core/rest/bf/init/" + bfid + "?objId=" + objid;
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, null, listener, errorListener){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("Cookie", COOKIE);
+                params.put("Content-Type", "application/json");
+                return params;
+            }
+
+        };
+        addToRequestQueue(request);
     }
 }
