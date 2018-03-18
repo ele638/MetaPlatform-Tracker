@@ -112,4 +112,11 @@
     <string name="DtaskProject">Проект: </string>
     <string name="DtaskPlanDate">Плановая дата: </string>
     <string name="DtaskWaitingDate">Желаемая дата: </string>
+    <string name="EtaskNumber">Номер задачи</string>
+    <string name="EtaskTitle">Заголовок задачи</string>
+    <string name="EtaskDesc">Описание задачи</string>
+    <string name="DtextCaption"><![CDATA[<Нет описания>]]></string>
+    <string name="EtaskSave">Сохранить</string>
+    <string name="EtaskUserId">Назначено на</string>
+    <string name="EtaskDateNotSet">Дата не указана</string>
 </resources>

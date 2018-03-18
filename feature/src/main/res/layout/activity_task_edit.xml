@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/EtaskSaveButton"
+        android:layout_alignParentTop="true">
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:padding="5dp"
+            tools:context="metaplatform.ele638.tracker.feature.TaskEditActivity">
+
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/EtaskNumberEditText"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:gravity="center"
+                android:text="@string/EtaskNumber"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/EtaskNumberEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/textView"
+                android:ems="10"
+                android:hint="@string/EtaskNumber"
+                android:inputType="number" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/EtaskTitleEditText"
+                android:layout_alignStart="@+id/textView"
+                android:layout_below="@+id/textView"
+                android:layout_toStartOf="@+id/EtaskTitleEditText"
+                android:gravity="center"
+                android:text="@string/EtaskTitle"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/EtaskTitleEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@+id/EtaskNumberEditText"
+                android:layout_below="@+id/EtaskNumberEditText"
+                android:layout_toEndOf="@+id/textView"
+                android:ems="10"
+                android:hint="@string/EtaskTitle"
+                android:inputType="textPersonName"
+                android:maxLines="3" />
+
+            <EditText
+                android:id="@+id/EtaskDescEditText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/EtaskTitleEditText"
+                android:layout_toEndOf="@+id/textView3"
+                android:ems="10"
+                android:hint="@string/EtaskDesc"
+                android:inputType="textMultiLine" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/EtaskDescEditText"
+                android:layout_alignStart="@+id/textView3"
+                android:layout_below="@+id/textView3"
+                android:layout_toStartOf="@+id/EtaskDescEditText"
+                android:gravity="center"
+                android:text="@string/EtaskDesc"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/EtaskUserSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/EtaskDescEditText"
+                android:layout_toEndOf="@+id/textView4" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/EtaskUserSpinner"
+                android:layout_alignStart="@+id/textView4"
+                android:layout_below="@+id/EtaskDescEditText"
+                android:layout_toStartOf="@+id/EtaskDescEditText"
+                android:gravity="center"
+                android:text="@string/EtaskUserId"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/EtaskPlanDate"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/EtaskUserSpinner"
+                android:layout_toStartOf="@+id/EtaskPlanDate"
+                android:gravity="center"
+                android:text="Плановая дата"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/EtaskPlanDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/EtaskUserSpinner"
+                android:layout_toEndOf="@+id/textView5"
+                android:hint="@string/EtaskDateNotSet" />
+
+            <TextView
+                android:id="@+id/textView9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/EtaskWaitingDate"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/textView7"
+                android:layout_toStartOf="@+id/EtaskWaitingDate"
+                android:gravity="center"
+                android:text="Желаемая дата"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/EtaskWaitingDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/EtaskPlanDate"
+                android:layout_toEndOf="@+id/textView5"
+                android:hint="@string/EtaskDateNotSet" />
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+    <Button
+        android:id="@+id/EtaskSaveButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="@string/EtaskSave" />
+</RelativeLayout>

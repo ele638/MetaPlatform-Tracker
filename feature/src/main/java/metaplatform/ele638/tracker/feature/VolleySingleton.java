@@ -175,4 +175,34 @@ public class VolleySingleton {
         };
         addToRequestQueue(request);
     }
+
+    public void editObject(Long objId, JSONObject requestBody, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener){
+        final String url = SERVER_URL + "core/rest/data/edit/" + objId;
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, requestBody, listener, errorListener){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("Cookie", COOKIE);
+                params.put("Content-Type", "application/json");
+                return params;
+            }
+
+        };
+        addToRequestQueue(request);
+    }
+
+    public void addObject(Long classId, JSONObject requestBody, Response.Listener<JSONObject> listener, Response.ErrorListener errorListener){
+        final String url = SERVER_URL + "core/rest/data/add/" + classId;
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, requestBody, listener, errorListener){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("Cookie", COOKIE);
+                params.put("Content-Type", "application/json");
+                return params;
+            }
+
+        };
+        addToRequestQueue(request);
+    }
 }

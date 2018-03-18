@@ -1,7 +1,12 @@
 package metaplatform.ele638.tracker.feature;
 
+import android.app.ActionBar;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -44,8 +49,8 @@ public class TaskActivity extends AppCompatActivity {
     LinearLayoutManager linearLayout;
     VolleySingleton volleySingleton;
     BottomBarAdapter adapter;
-    Long currentId;
     ProgressDialog dialog;
+    Task currentTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,19 +63,59 @@ public class TaskActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(getBaseContext(), TaskEditActivity.class);
+                intent.putExtra("taskObj", getIntent().getStringExtra("response"));
+                startActivityForResult(intent, 0);
             }
         });
+
+        volleySingleton = VolleySingleton.getInstance(this);
+        setData(getIntent());
+
+        TaskList.progress.dismiss();
+    }
+
+    public void setData(Intent intent){
+        volleySingleton = VolleySingleton.getInstance(this);
         taskCaption = findViewById(R.id.DtaskCaption);
         taskCategory = findViewById(R.id.DTaskCategory);
         taskProject = findViewById(R.id.DTaskProject);
         taskPlanDate = findViewById(R.id.DTaskPlanDate);
         taskWaitingDate = findViewById(R.id.DTaskWaitingDate);
+        if (intent.getStringExtra("response").isEmpty()) {
+            volleySingleton.getTaskDetail(getIntent().getLongExtra("id", 0), new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    try {
+                        if (response.getString("code").equals("200")) {
+                            Log.d("test", response.toString());
+                            currentTask = new Task(response.getJSONObject("body"));
+                            updateViews();
+                            getStatuses();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    error.printStackTrace();
+                }
+            });
+        }else{
+            try {
+                currentTask = new Task(new JSONObject(intent.getStringExtra("response")));
+                updateViews();
+                getStatuses();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
 
-        volleySingleton = VolleySingleton.getInstance(this);
-        currentId = getIntent().getLongExtra("id", 0);
+    }
 
+    public void updateViews(){
         bottomBar = findViewById(R.id.DbottomBar);
         linearLayout = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         bottomBar.setLayoutManager(linearLayout);
@@ -82,30 +127,35 @@ public class TaskActivity extends AppCompatActivity {
         dialog.setMessage("Обновление данных с сервера");
         dialog.setCancelable(false); // disable dismiss by tapping outside of the dialog
 
-        getStatuses();
-        try {
-            data = new JSONObject(getIntent().getStringExtra("response"));
-            getSupportActionBar().setTitle(data.getJSONObject("A$NAME").getString("value"));
-            taskCaption.setText(data.isNull("DESCR") ? "<Нет описания>" : Html.fromHtml(data.getJSONObject("DESCR").getString("value")));
-            taskCategory.setText(data.isNull("CATID") ? "Нет" : data.getJSONObject("CATID").getString("displayValue"));
-            taskProject.setText(data.isNull("PROJECTID") ? "Нет" : data.getJSONObject("PROJECTID").getString("displayValue"));
-            taskPlanDate.setText(data.isNull("DATE_PLAN") ? "Нет" : data.getJSONObject("DATE_PLAN").getString("value"));
-            taskWaitingDate.setText(data.isNull("DATE_WISH") ? "Нет" : data.getJSONObject("DATE_WISH").getString("value"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
+        getSupportActionBar().setTitle(currentTask.number + " - " + currentTask.name);
+
+        taskCaption.setText(Html.fromHtml(currentTask.description));
+        taskCategory.setText(currentTask.category);
+        taskProject.setText(currentTask.project);
+        taskPlanDate.setText(currentTask.data_plan);
+        taskWaitingDate.setText(currentTask.waiting_date);
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor(currentTask.background_color)));
+        findViewById(R.id.toolbar_layout).setBackgroundColor(Color.parseColor(currentTask.background_color));
+        getWindow().setStatusBarColor(Color.parseColor(currentTask.statusbar_color));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK) {
+            setData(data);
+        }
     }
 
     public void getStatuses() {
-        volleySingleton.getStatuses(currentId, new Response.Listener<JSONObject>() {
+        volleySingleton.getStatuses(currentTask.id, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
                     if (response.getString("code").equals("200")) {
                         adapter.statuses = response.getJSONArray("body");
                         adapter.recreateMap();
-                        Log.d("test", response.toString());
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -120,12 +170,16 @@ public class TaskActivity extends AppCompatActivity {
 
     }
 
-    public void showDialog(){
+    public void showDialog() {
         dialog.show();
     }
 
-    public void dismissDialog(){
+    public void dismissDialog() {
         dialog.dismiss();
+    }
+
+    public void setMessageDialog(String message) {
+        dialog.setMessage(message);
     }
 
     class BottomBarAdapter extends RecyclerView.Adapter<BottomBarAdapter.ViewHolder> {
@@ -185,20 +239,23 @@ public class TaskActivity extends AppCompatActivity {
                 status.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        setMessageDialog("Установка статуса " + status.getText().toString());
                         showDialog();
-                        volleySingleton.setStatus(id, currentId, new Response.Listener<JSONObject>() {
+                        volleySingleton.setStatus(id, currentTask.id, new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
                                 try {
                                     if (response.getString("code").equals("200")) {
                                         Toast.makeText(getApplicationContext(), "Success", Toast.LENGTH_SHORT).show();
                                         getStatuses();
-                                    }else{
+                                        dismissDialog();
+                                    } else {
                                         Log.d("setStatus", response.toString());
+                                        dismissDialog();
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
+                                    dismissDialog();
                                 }
                             }
                         }, new Response.ErrorListener() {
@@ -207,7 +264,7 @@ public class TaskActivity extends AppCompatActivity {
                                 error.printStackTrace();
                             }
                         });
-                        dismissDialog();
+
                     }
                 });
             }

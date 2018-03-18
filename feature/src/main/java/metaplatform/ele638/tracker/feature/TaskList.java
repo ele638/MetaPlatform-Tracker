@@ -9,6 +9,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -66,6 +68,11 @@ public class TaskList extends Fragment {
     List<Task> tasks, tasks_filtered;
     final String LOG_TAG = "TASKLIST ";
     RadioGroup.OnCheckedChangeListener toggleListner;
+    static ProgressDialog progress;
+    TaskAdapter taskAdapter;
+    SwipeRefreshLayout refreshLayout;
+    RadioGroup radioGroup;
+
 
     @Nullable
     @Override
@@ -74,14 +81,26 @@ public class TaskList extends Fragment {
         final RecyclerView taskRecyclerView = out_view.findViewById(R.id.taskRecyclerView);
         final RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
         taskRecyclerView.setLayoutManager(layoutManager);
-
-
+        refreshLayout = out_view.findViewById(R.id.swipeContainer);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                taskAdapter.clear();
+                getTasks();
+                taskAdapter.notifyDataSetChanged();
+                radioGroup.clearCheck();
+            }
+        });
+        refreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
         tasks = new ArrayList<>();
         tasks_filtered = new ArrayList<>();
-        final TaskAdapter taskAdapter = new TaskAdapter();
+        taskAdapter = new TaskAdapter();
         taskRecyclerView.setAdapter(taskAdapter);
 
-        final RadioGroup radioGroup = out_view.findViewById(R.id.tasksRadioGroup);
+        radioGroup = out_view.findViewById(R.id.tasksRadioGroup);
         toggleListner = new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -105,60 +124,50 @@ public class TaskList extends Fragment {
             }
         });
         volleySingleton = VolleySingleton.getInstance(getContext());
-        // ArrayAdapter.createFromResource(this,
-        //users.values().toString(), android.R.layout.simple_spinner_item);
-        /* volleySingleton.getUsers(
+
+        progress = new ProgressDialog(getContext());
+        progress.setTitle("Загрузка");
+        progress.setMessage("Обновление данных с сервера");
+        progress.setCancelable(true); // disable dismiss by tapping outside of the dialog
+
+        FloatingActionButton fab = out_view.findViewById(R.id.TaskListAdd);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), TaskEditActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        getTasks();
+
+        return out_view;
+    }
+
+    public void getTasks(){
+        volleySingleton.getTasks(
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            if(response.getInt("code") == 200){
-                                JSONArray body = response.getJSONArray("body");
-                                Log.d("UserLoadBody", body.toString());
-                                for(int i=0; i < body.length(); i++)
-                                    users.put(body.getJSONObject(i).getLong("id"),
-                                            body.getJSONObject(i).getString("name"));
-
-                            };
-                        } catch (JSONException e) {
+                            if (response.getInt("code") == 200) {
+                                tasks = Task.arrayFromJson(response.getJSONArray("body"));
+                                tasks_filtered = tasks;
+                                taskAdapter.notifyDataSetChanged();
+                                progress.dismiss();
+                                refreshLayout.setRefreshing(false);
+                                Log.d(LOG_TAG + "getTasks: ",response.toString());
+                            } else {
+                                Intent intent = new Intent(getContext(), LoginActivity.class);
+                                startActivity(intent);
+                                Log.d(LOG_TAG + "getTasks: ",response.toString());
+                                progress.dismiss();
+                            }
+                        } catch (Exception e) {
                             e.printStackTrace();
+                            progress.dismiss();
                         }
                     }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d("UsersLoad", error.toString());
-                    }
-                }
-        );
-        */
-        final ProgressDialog progress = new ProgressDialog(getContext());
-        progress.setTitle("Загрузка");
-        progress.setMessage("Обновление данных с сервера");
-        progress.setCancelable(false); // disable dismiss by tapping outside of the dialog
-        progress.show();
-
-        volleySingleton.getTasks(
-                new Response.Listener<JSONObject>() {
-                     @Override
-                     public void onResponse(JSONObject response) {
-                         try {
-                             if (response.getInt("code") == 200) {
-                                 tasks = Task.arrayFromJson(response.getJSONArray("body"));
-                                 tasks_filtered = tasks;
-                                 taskAdapter.notifyDataSetChanged();
-                                 progress.dismiss();
-                                 Log.d(LOG_TAG + "getTasks: ",response.toString());
-                             } else {
-                                 Intent intent = new Intent(getContext(), LoginActivity.class);
-                                 startActivity(intent);
-                                 Log.d(LOG_TAG + "getTasks: ",response.toString());
-                             }
-                         } catch (Exception e) {
-                             e.printStackTrace();
-                         }
-                     }
                 },
                 new Response.ErrorListener() {
                     @Override
@@ -166,12 +175,10 @@ public class TaskList extends Fragment {
                         Log.d(LOG_TAG + "getTasks: ", error.toString());
                         Intent intent = new Intent(getContext(), LoginActivity.class);
                         startActivity(intent);
+                        progress.dismiss();
                     }
                 });
-        return out_view;
     }
-
-
 
 
     class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.ViewHolder> implements Filterable {
@@ -187,6 +194,13 @@ public class TaskList extends Fragment {
         public int getItemCount() {
             return tasks_filtered.size();
         }
+
+        public void clear(){
+            tasks_filtered.clear();
+            tasks.clear();
+            notifyDataSetChanged();
+        }
+
 
         @Override
         public void onBindViewHolder(TaskAdapter.ViewHolder holder, final int position) {
@@ -215,24 +229,29 @@ public class TaskList extends Fragment {
                     volleySingleton.getTaskDetail(element.id, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
+                            TaskList.progress.setMessage(element.name);
+                            TaskList.progress.show();
                             try {
                                 Log.d(LOG_TAG + "getSelTask: ",response.toString());
                                 if (response.getString("code").equals("200")){
                                     Intent intent = new Intent(getContext(), TaskActivity.class);
-                                    intent.putExtra("response", response.getJSONObject("body").getJSONObject("data").toString());
+                                    intent.putExtra("response", response.getJSONObject("body").toString());
                                     intent.putExtra("id", response.getJSONObject("body").getJSONObject("system").getLong("id"));
                                     startActivity(intent);
+
                                 }else{
+                                    TaskList.progress.dismiss();
                                     Toast.makeText(getContext(), "Error loading, code "+response.getString("code"), Toast.LENGTH_SHORT).show();
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
+                                TaskList.progress.dismiss();
                             }
                         }
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-
+                            Toast.makeText(getContext(), "Проверьте соединение с интернетом", Toast.LENGTH_SHORT).show();
                         }
                     });
 
@@ -287,31 +306,4 @@ public class TaskList extends Fragment {
 
     }
 
-    class UsersAdapter extends BaseAdapter {
-
-        @Override
-        public int getCount() {
-            return users.values().toArray().length;
-        }
-
-        @Override
-        public Object getItem(int i) {
-            return users.values().toArray()[i];
-        }
-
-        @Override
-        public long getItemId(int i) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
-
-            TextView out = new TextView(getContext());
-            out.setText(users.values().toArray()[i].toString());
-            //View out =  View.inflate(getContext(), android.R.layout.simple_spinner_item, null);
-            //((TextView) out.findViewById(android.R.id.text1)).setText(users.values().toArray()[i].toString());
-            return out;
-        }
-    }
 }
