@@ -39,8 +39,9 @@ public class VolleySingleton {
     private RequestQueue mRequestQueue;
     private static Context mCtx;
     private final String SERVER_URL = "https://tracker.metaplatform.ru:8183/";
-    private String COOKIE;
-    SharedPreferences preferences;
+    private static String COOKIE;
+    private static Map<String, String> headers;
+    static SharedPreferences preferences;
 
     private VolleySingleton(Context context) {
         mCtx = context;
@@ -48,11 +49,21 @@ public class VolleySingleton {
         preferences = PreferenceManager.getDefaultSharedPreferences(mCtx);
         //SharedPreferences.Editor editor = preferences.edit();
         COOKIE = preferences.getString("Cookie", "");
+        headers = new HashMap<String, String>();
+        headers.put("Cookie", COOKIE);
+        headers.put("Content-Type", "application/json");
     }
 
     public static synchronized VolleySingleton getInstance(Context context) {
         if (mInstance == null) {
             mInstance = new VolleySingleton(context);
+        }else{
+            preferences = PreferenceManager.getDefaultSharedPreferences(mCtx);
+            //SharedPreferences.Editor editor = preferences.edit();
+            COOKIE = preferences.getString("Cookie", "");
+            headers = new HashMap<String, String>();
+            headers.put("Cookie", COOKIE);
+            headers.put("Content-Type", "application/json");
         }
         return mInstance;
     }
@@ -75,7 +86,7 @@ public class VolleySingleton {
         StringRequest postRequest = new StringRequest(Request.Method.POST, url, listner, errorListener) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<String, String>();
                 params.put("login", login);
                 params.put("password", password);
                 return params;
@@ -99,10 +110,7 @@ public class VolleySingleton {
         JsonObjectRequest usersRequest = new JsonObjectRequest(Request.Method.POST, url, new JSONObject(), listner, errorListener){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
-                params.put("Cookie", COOKIE);
-                //params.put("Content-Type", "application/json");
-                return params;
+                return headers;
             }
         };
         addToRequestQueue(usersRequest);
@@ -118,10 +126,7 @@ public class VolleySingleton {
             JsonObjectRequest taskRequest = new JsonObjectRequest(Request.Method.POST, url, params, listner, errorListener) {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String>  params = new HashMap<String, String>();
-                    params.put("Cookie", COOKIE);
-                    params.put("Content-Type", "application/json");
-                    return params;
+                    return headers;
                 }
 
             };
@@ -136,10 +141,7 @@ public class VolleySingleton {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, listener, errorListener){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
-                params.put("Cookie", COOKIE);
-                params.put("Content-Type", "application/json");
-                return params;
+                return headers;
             }
 
         };
@@ -151,10 +153,7 @@ public class VolleySingleton {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null, listener, errorListener){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
-                params.put("Cookie", COOKIE);
-                params.put("Content-Type", "application/json");
-                return params;
+                return headers;
             }
 
         };
@@ -166,10 +165,7 @@ public class VolleySingleton {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, null, listener, errorListener){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
-                params.put("Cookie", COOKIE);
-                params.put("Content-Type", "application/json");
-                return params;
+                return headers;
             }
 
         };
@@ -181,10 +177,7 @@ public class VolleySingleton {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, requestBody, listener, errorListener){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
-                params.put("Cookie", COOKIE);
-                params.put("Content-Type", "application/json");
-                return params;
+                return headers;
             }
 
         };
@@ -196,13 +189,39 @@ public class VolleySingleton {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, requestBody, listener, errorListener){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String>  params = new HashMap<String, String>();
-                params.put("Cookie", COOKIE);
-                params.put("Content-Type", "application/json");
-                return params;
+                return headers;
             }
 
         };
         addToRequestQueue(request);
+    }
+
+    public void getTimes(String startDate, String endDate, Response.Listener<JSONObject> listner, Response.ErrorListener errorListener){
+        final String url = SERVER_URL + "core/rest/data/grid/2521145802775";
+        try {
+            JSONObject params = null;
+            if (!(endDate.isEmpty())) {
+                params = new JSONObject("{\"nodes\":[9212704849951,9234179686431],\"params\":{\n" +
+                        "\"@userid\" : [" + preferences.getString("USERID", "") + "],\n" +
+                        "\"@s\" : \"" + startDate + "\",\n" +
+                        "\"@po\" : \"" + endDate + "\"\n" +
+                        "}}");
+            }else{
+                params = new JSONObject("{\"nodes\":[9212704849951,11166914969631],\"params\":{\n" +
+                        "\"@userid\" : [" + preferences.getString("USERID", "") + "],\n" +
+                        "\"@DATA\" : \"" + startDate + "\"\n" +
+                        "}}");
+            }
+            JsonObjectRequest taskRequest = new JsonObjectRequest(Request.Method.POST, url, params, listner, errorListener) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    return headers;
+                }
+
+            };
+            addToRequestQueue(taskRequest);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,6 +1,7 @@
 package metaplatform.ele638.tracker.feature;
 
 import android.app.ActionBar;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -51,6 +52,7 @@ public class TaskActivity extends AppCompatActivity {
     BottomBarAdapter adapter;
     ProgressDialog dialog;
     Task currentTask;
+    Button timeButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +70,13 @@ public class TaskActivity extends AppCompatActivity {
                 startActivityForResult(intent, 0);
             }
         });
+        timeButton = findViewById(R.id.timeButton);
+        timeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+            }
+        });
         volleySingleton = VolleySingleton.getInstance(this);
         setData(getIntent());
 

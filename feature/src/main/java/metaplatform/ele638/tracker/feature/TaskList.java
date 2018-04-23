@@ -17,43 +17,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ListView;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.SimpleAdapter;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -141,6 +118,8 @@ public class TaskList extends Fragment {
 
         getTasks();
 
+
+
         return out_view;
     }
 
@@ -226,11 +205,11 @@ public class TaskList extends Fragment {
             holder.itemView.findViewById(R.id.taskCardView).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    TaskList.progress.setMessage(element.name);
+                    TaskList.progress.show();
                     volleySingleton.getTaskDetail(element.id, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            TaskList.progress.setMessage(element.name);
-                            TaskList.progress.show();
                             try {
                                 Log.d(LOG_TAG + "getSelTask: ",response.toString());
                                 if (response.getString("code").equals("200")){

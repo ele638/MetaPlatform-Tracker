@@ -119,4 +119,5 @@
     <string name="EtaskSave">Сохранить</string>
     <string name="EtaskUserId">Назначено на</string>
     <string name="EtaskDateNotSet">Дата не указана</string>
+    <string name="PBCaptionDefault">N/M часов (X %)</string>
 </resources>

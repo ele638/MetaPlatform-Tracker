@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/timeSwipeContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/filtersLayout"
+        android:layout_alignParentTop="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/timeFilledText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/timeRecyclerView"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:gravity="center"
+                android:text="Заполненность: "
+                android:textAlignment="center"
+                android:padding="5dp"/>
+
+            <ProgressBar
+                android:id="@+id/timeProgressBar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_toEndOf="@id/timeFilledText"
+                android:indeterminate="false"
+                android:max="100"
+                android:progress="10"
+                android:visibility="visible"
+                android:padding="5dp"/>
+
+            <TextView
+                android:id="@+id/timeFilledDetailText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/PBCaptionDefault"
+                android:layout_below="@id/timeProgressBar"
+                android:layout_toEndOf="@id/timeFilledText"
+                android:layout_alignParentEnd="true"
+                android:gravity="center"
+                android:padding="5dp"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/timeRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/timeFilledDetailText" />
+
+        </RelativeLayout>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+    <LinearLayout
+        android:id="@+id/filtersLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/timeStartDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Дата начала" />
+
+        <Button
+            android:id="@+id/timeEndDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Дата окончания" />
+
+        <Button
+            android:id="@+id/timeSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.4"
+            android:text="Поиск" />
+
+    </LinearLayout>
+</RelativeLayout>
+

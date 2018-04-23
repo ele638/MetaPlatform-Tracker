@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         taskList = new TaskList();
         timeList = new TimeList();
         fragmentTransaction = getFragmentManager().beginTransaction();
+
         fragmentTransaction.replace(R.id.mainFrame, taskList);
         fragmentTransaction.commit();
 
